@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
+<<<<<<< HEAD
 	<name>TaskManagerWeb-02</name>
+=======
+	<name>TaskManagerWeb-01</name>
+>>>>>>> d536a75a379f6a0b78e08b1f3a552aff71518252
 	<comment></comment>
 	<projects>
 	</projects>
