@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cal>
+	<tasks>
+		<task id="handin-01" name="Submit assignment-01" date="16-12-2013"
+			status="not-executed" required="false">
+			<description>
+				Work on mandatory assignment.
+			</description>
+			<attendants>student-01, student-02</attendants>
+		</task>
+		<task id="review-01" name="Review and check assignment" date="17-12-2013"
+			status="not-executed" required="false">
+			<description>
+				Check the assignment send by students and decide whether
+				to approve or
+				ask them to re-submit the assignment.
+			</description>
+			<attendants>TA-01, Rao</attendants>
+
+		</task>
+		<task id="reject-01" name="ask to resubmit the assignment" date="17-12-2013"
+			status="not-executed" required="false">
+			<description>
+				Ask students to resubmit assignment by providing
+				necessary feedback.
+			</description>
+			<attendants>TA-01, Rao</attendants>
+
+		</task>
+		<task id="approve-01" name="mandatory assignment 01 approved"
+			date="17-12-2013" status="not-executed" required="false">
+			<description>
+				Approve mandatory assignment 01 and inform students.
+			</description>
+			<attendants>TA-01, Rao</attendants>
+
+		</task>
+
+		<task id="qualify-for-exam" name="qualify for written exam" date="21-12-2013"
+			status="not-executed" required="false">
+			<description>
+				Qualify students to take up written exam.
+			</description>
+			<attendants>Thomas</attendants>
+
+		</task>
+	</tasks>
+</cal>
