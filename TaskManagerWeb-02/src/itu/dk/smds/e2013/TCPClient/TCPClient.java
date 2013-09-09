@@ -3,14 +3,22 @@ package itu.dk.smds.e2013.TCPClient;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.sun.jmx.snmp.tasks.Task;
+
 public class TCPClient {
 
-	private static String command = "GET";
+	// MyExamples
+	private static String command = "PUT";
+	private static String myID = "1234";
+	private static Task mytask = new Task();
 
 	public static void main(String args[]) {
 		try {
@@ -42,15 +50,47 @@ public class TCPClient {
 
 			// Print the message.
 			if (response.equals(command)) {
-				System.out.println("Message from Server: " + response);
-				System.out.println("Horray - correct respond from server");
 
-				if (command == "POST" || command == "PUT") {
-					System.out.println("POST || PUT");
-				} else if (command == "GET" || command == "DELETE") {
-					System.out.println("GET || DELETE");
-				} else {
+				// create object streams to send and receive objects if neccessary
+				ObjectOutputStream myOutputStream = new ObjectOutputStream(socket.getOutputStream());
+				ObjectInputStream myIntputStream = new ObjectInputStream(socket.getInputStream());
+				
+				// Format:
+				// Send something to the server
+				// Flush the stream
+				// Display the Server response
+				switch (command) {
+				
+				case "POST":
+					myOutputStream.writeObject(mytask);
+					myOutputStream.flush();
+					System.out.println("The posted object is: " + dis.readUTF());
+					break;
+					
+				case "PUT":
+					myOutputStream.writeObject(mytask);
+					myOutputStream.flush();
+					System.out.println("The puted object is: " + dis.readUTF());
+					break;
+					
+				case "GET":
+					dos.writeUTF(myID);
+					
+					@SuppressWarnings("unchecked")
+					List<Task> myList = (List<Task>) myIntputStream.readObject();
+					
+					foreach(Task elem : myList) {
+						System.out.println(elem.toString());
+					}	
+					break;
+					
+				case "DELETE":
+					dos.writeUTF(myID);
+					System.out.println("The delited object is: " + dis.readUTF());
+					break;
+				default:
 					System.out.println("Command wasn't found");
+					break;
 				}
 
 			} else {

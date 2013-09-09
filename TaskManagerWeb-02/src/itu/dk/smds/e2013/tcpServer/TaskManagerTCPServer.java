@@ -1,7 +1,12 @@
 package itu.dk.smds.e2013.tcpServer;
-import java.net.*;
-import java.util.logging.*;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TaskManagerTCPServer {
 
@@ -45,7 +50,7 @@ public class TaskManagerTCPServer {
             socket.close();
             
             serverSocket.close();
-
+        	
 
         } catch (IOException ex) {
             Logger.getLogger(TaskManagerTCPServer.class.getName()).log(Level.SEVERE, null, ex);
