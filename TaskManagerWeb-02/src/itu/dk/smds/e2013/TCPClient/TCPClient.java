@@ -1,5 +1,7 @@
 package itu.dk.smds.e2013.TCPClient;
 
+import itu.dk.smds.e2013.common.Task;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,8 +12,6 @@ import java.net.Socket;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.sun.jmx.snmp.tasks.Task;
 
 public class TCPClient {
 
@@ -79,7 +79,7 @@ public class TCPClient {
 					@SuppressWarnings("unchecked")
 					List<Task> myList = (List<Task>) myIntputStream.readObject();
 					
-					foreach(Task elem : myList) {
+					for (Task elem : myList) {
 						System.out.println(elem.toString());
 					}	
 					break;
@@ -100,7 +100,7 @@ public class TCPClient {
 			// Finnaly close the socket.
 			socket.close();
 
-		} catch (IOException ex) {
+		} catch (IOException | ClassNotFoundException ex) {
 			Logger.getLogger(TCPClient.class.getName()).log(Level.SEVERE, null,
 					ex);
 
