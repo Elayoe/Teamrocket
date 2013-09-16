@@ -20,9 +20,20 @@ public class TCPClient {
 	// MyExamples
 	private static String command = "PUT";
 	private static String myID = "1234";
+	private static String attendant = "student-01";
 	private static Task mytask = new Task();
 
 	public static void main(String args[]) {
+		
+		mytask.id = "1234";
+		mytask.name = "New John";
+		mytask.date = "today";
+		mytask.status = "done";
+		mytask.required = false;
+		mytask.attendants = "Nicki";
+		mytask.description = "Horray";
+		
+		
 		try {
 			// IP address of the server,
 			InetAddress serverAddress = InetAddress.getByName("localhost");
@@ -72,23 +83,17 @@ public class TCPClient {
 					
 				case "PUT":
 					myOutputStream = new ObjectOutputStream(socket.getOutputStream());
-					
-					
-					mytask.id = "1234";
-					mytask.name = "John";
-					mytask.date = "today";
-					mytask.status = "yay";
-					mytask.required = false;
-					mytask.attendants = "Nicki";
-					mytask.description = "Horray";
-					
+									
 					myOutputStream.writeObject(mytask);
 					
 					myOutputStream.flush();
 
+					System.out.println(dis.readUTF());
+					
 					break;
 					
 				case "GET":
+					
 					dos.writeUTF(myID);
 					
 					myIntputStream = new ObjectInputStream(socket.getInputStream());
@@ -97,13 +102,16 @@ public class TCPClient {
 					ArrayList<Task> myList = (ArrayList<Task>) myIntputStream.readObject();
 					
 					for (Task elem : myList) {
-						System.out.println(elem.name);
+						System.out.println("ID '" + elem.id + "' has the task: \"" + elem.name + "\"");
 					}	
 					break;
 					
 				case "DELETE":
 					dos.writeUTF(myID);
 					System.out.println("The delited object is: " + dis.readUTF());
+					
+					System.out.println("The deleted object is: " + dis.readUTF());
+					
 					break;
 				default:
 					System.out.println("Command wasn't found");

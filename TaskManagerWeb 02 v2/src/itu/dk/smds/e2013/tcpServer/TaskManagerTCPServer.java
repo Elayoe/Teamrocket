@@ -67,9 +67,6 @@ public class TaskManagerTCPServer {
 			outputStream.writeUTF(message);
 
 			outputStream.flush();
-
-			
-			
 			
 			ObjectInputStream myIntputStream;
 			ObjectOutputStream myOutputStream;
@@ -77,50 +74,53 @@ public class TaskManagerTCPServer {
 			
 			switch (message) {
 			case "PUT":
+				
 				myIntputStream = new ObjectInputStream(socket.getInputStream());
-				Task myTask = null; 
+				Task putTask = null; 
 				
 				try {
-					myTask = (Task) myIntputStream.readObject();
+					putTask = (Task) myIntputStream.readObject();
+				} catch (ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}		
+				
+				outputStream.writeUTF(CalSerializer.putTask(putTask));
+				
+				break;
+			
+			case "POST":
+				
+				myIntputStream = new ObjectInputStream(socket.getInputStream());
+				Task postTask = null; 
+				
+				try {
+					postTask = (Task) myIntputStream.readObject();
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}		
 			
-				CalSerializer.Serializer(myTask);
+				outputStream.writeUTF(CalSerializer.postTask(postTask));
 				
-				
-				System.out.println("Worked out");
-				
-				
-				break;
-			
-			case "POST":
-			
 				break;
 				
 			case "GET":
+				
 				String getID = dis.readUTF();
-				System.out.println("The id is" + getID);
 				
 				myOutputStream = new ObjectOutputStream(socket.getOutputStream());
-				
-				Task myOtherTask = new Task();
-				myOtherTask.id = "1234";
-				myOtherTask.name = "Mr. T";
-			
-				
-				ArrayList<Task> myList = new ArrayList<Task>();
-				
-				myList.add(myOtherTask);
-				
-				myOutputStream.writeObject(myList);
+
+				myOutputStream.writeObject(CalSerializer.getList(getID));
 				
 				break;
 				
 			case "DELETE":
+				
 				String deleteID = dis.readUTF();
-				System.out.println("The id is" + deleteID);
+
+				outputStream.writeUTF(CalSerializer.deleteTask(deleteID));
+				
 				break;
 			default:
 				break;
