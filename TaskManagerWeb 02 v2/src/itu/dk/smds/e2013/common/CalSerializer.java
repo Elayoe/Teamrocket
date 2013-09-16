@@ -19,10 +19,10 @@ public class CalSerializer {
 			Object obj = new Object();
 
 			// Get path to the task-manager-xml.xml using relative path.
-			String path = obj.getClass().getResource("..\\..\\WebContent\\WEB-INF\\task-manager-xml.xml").getPath();
+			String path = obj.getClass().getResource("../resources/task-manager-xml.xml").getPath();
 
 			InputStream stream = obj.getClass().getResourceAsStream(
-					"..\\..\\WebContent\\WEB-INF\\task-manager-xml.xml");
+					"../resources/task-manager-xml.xml");
 
 			// create an instance context class, to serialize/deserialize.
 			JAXBContext jaxbContext = JAXBContext.newInstance(Cal.class);
