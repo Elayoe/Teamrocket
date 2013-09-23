@@ -41,6 +41,22 @@ import javax.xml.bind.annotation.XmlRootElement;
         
         @XmlElement
         public String attendants;
+    	
+        public Task(){
+        	
+        }
+    	
+    	public Task(String id, String name, String date, String status, String required, String description, String attendants) {
+		this.id = id; 
+		this.name = name;
+		this.date = date;
+		this.status = status;
+		this.required = required;
+		this.description = description;
+		this.attendants = attendants;
+	}
+
+		
            
         
         
