@@ -4,15 +4,27 @@
   <title>Form to create a new resource</title>
  </head>
 <body>
-  <form action="../de.vogella.jersey.todo/rest/todos" method="POST">
+  <form action="../TaskManagerWeb-03/rest/taskmgr/tasks" method="POST">
   <label for="id">ID</label>
   <input name="id" />
   <br/>
-  <label for="summary">Summary</label>
-  <input name="summary" />
+  <label for="name">Name</label>
+  <input name="name" />
+  <br/>
+  <label for="date">Date</label>
+  <input name="date" />
+  <br/>
+  <label for="status">Status</label>
+  <input name="status" />
+  <br/>
+  <label for="required">Required</label>
+  <input name="required" />
   <br/>
   Description:
   <TEXTAREA NAME="description" COLS=40 ROWS=6></TEXTAREA>
+  <br/>
+  Attendants:
+  <TEXTAREA NAME="attendants" COLS=40 ROWS=6></TEXTAREA>
   <br/>
   <input type="submit" value="Submit" />
   </form>

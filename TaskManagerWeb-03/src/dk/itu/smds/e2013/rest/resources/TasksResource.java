@@ -32,7 +32,7 @@ public class TasksResource {
 	Request request;
 
 
-	// Return the list of todos to the user in the browser
+	// Return the list of tasks to the user in the browser
 	@GET
 	@Produces(MediaType.TEXT_XML)
 	public List<Task> getTasksBrowser() {
@@ -41,7 +41,7 @@ public class TasksResource {
 		return todos; 
 	}
 
-	// Return the list of todos for applications
+	// Return the list of tasks for applications
 	@GET
 	@Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
 	public List<Task> getTasks() {
@@ -52,7 +52,7 @@ public class TasksResource {
 
 
 	// retuns the number of tasks
-	// Use http://localhost:8080/de.vogella.jersey.todo/rest/todos/count
+	// Use http://localhost:8080/de.vogella.jersey.todo/rest/taskmgr/tasks/count
 	// to get the total number of records
 	@GET
 	@Path("count")
@@ -77,16 +77,17 @@ public class TasksResource {
 		/*if (description!=null){
 			task.setDescription(description);
 		}*/
-		TaskManagerDAOEnum.INSTANCE.updateTask(task);
+		TaskManagerDAOEnum.INSTANCE.addTask(task);
+		System.out.println("hej");
 
-		servletResponse.sendRedirect("../create_task.html");
+		servletResponse.sendRedirect("../../create_task.html");
 	}
 
 
-	// Defines that the next path parameter after todos is
+	// Defines that the next path parameter after tasks is
 	// treated as a parameter and passed to the TodoResources
-	// Allows to type http://localhost:8080/de.vogella.jersey.todo/rest/todos/1
-	// 1 will be treaded as parameter todo and passed to TodoResource
+	// Allows to type http://localhost:8080/TaskManagerWeb-03/rest/taskmgr/tasks/1
+	// 1 will be treaded as parameter task and passed to TaskResource
 	@Path("{task}")
 	public TaskResource getTask(@PathParam("task") String id) {
 		return new TaskResource(uriInfo, request, id);

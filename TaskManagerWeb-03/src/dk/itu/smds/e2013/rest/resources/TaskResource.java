@@ -40,7 +40,7 @@ public class TaskResource {
   // For the browser
   @GET
   @Produces(MediaType.TEXT_XML)
-  public Task getTodoHTML() {
+  public Task getTaskHTML() {
     Task task = TaskManagerDAOEnum.INSTANCE.getTask(id);
     if(task==null)
       throw new RuntimeException("Get: Task with " + id +  " not found");
