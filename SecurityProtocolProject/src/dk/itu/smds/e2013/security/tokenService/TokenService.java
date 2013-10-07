@@ -30,8 +30,9 @@ public class TokenService {
 
     private static HashMap<String, String> roleMappings = new HashMap();
     private static int tokenServerPort = 8008;
-    private static String Client_Key_Passcode = "Topmost Secret";
-    private static String Server_Key_Passcode = "Don't reveal the Secret";
+    private static String Client_Token_Key_Passcode = "Topmost Secret";
+    private static String Token_Server_Key_Passcode = "Don't reveal the Secret";
+    private static String Server_Client_Key_Passcode = "You shall not pass";
     private static BufferedReader in;
     private static final String Encoding_Format = "UTF8";
     private static final SimpleDateFormat formatted = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -76,7 +77,6 @@ public class TokenService {
 
                 RoleBasedToken generateToken = generateToken(usertoken);
 
-
                 // Write the token into socket..
                 oos = new ObjectOutputStream(socket.getOutputStream());
 
@@ -119,7 +119,7 @@ public class TokenService {
             byte[] encryptedBytes = Utilities.getBase64DecodedBytes(userToken);
 
             // Decrypt the user token.
-            byte[] keyBytes = Client_Key_Passcode.getBytes(Encoding_Format);
+            byte[] keyBytes = Client_Token_Key_Passcode.getBytes(Encoding_Format);
 
             byte[] decryptMessage = DESEncryptionHelper.decryptMessage(keyBytes, encryptedBytes);
 
@@ -213,7 +213,7 @@ public class TokenService {
 
         try {
             // Finally return the eberated token.
-            token.token = getRoleBasedToken(role);
+            token.token = getRoleBasedToken(role, userNameArray[1]);
 
             token.result = true;
 
@@ -234,7 +234,7 @@ public class TokenService {
 
     }
 
-    private static String getRoleBasedToken(String role) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, FileNotFoundException, IOException, IllegalBlockSizeException, BadPaddingException {
+    private static String getRoleBasedToken(String role, String userName) throws UnsupportedEncodingException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, FileNotFoundException, IOException, IllegalBlockSizeException, BadPaddingException {
 
         Calendar calendar = Calendar.getInstance();
 
@@ -243,17 +243,19 @@ public class TokenService {
         Date expiryTime = calendar.getTime();
 
         // Format of server token = [role];[timestamp]
-        String roleToken = role + ";" + formatted.format(expiryTime);
+        String roleToken = role + ";" + formatted.format(expiryTime) + ";" + userName + ";" + Server_Client_Key_Passcode;
 
         // First encrypt the server token with server encryption key..
-        byte[] encryptTokenBytes = DESEncryptionHelper.encryptMessage(Server_Key_Passcode.getBytes(Encoding_Format),
+        byte[] encryptTokenBytes = DESEncryptionHelper.encryptMessage(Token_Server_Key_Passcode.getBytes(Encoding_Format),
                 roleToken.getBytes(Encoding_Format));
 
         String base64ServerToken = Utilities.getBase64EncodedString(encryptTokenBytes);
+        
+        base64ServerToken = base64ServerToken + ";" + Server_Client_Key_Passcode;
 
         // Now again encrypt the base 64 encoded server token with Client key.
 
-        byte[] doubleEncryptTokenBytes = DESEncryptionHelper.encryptMessage(Client_Key_Passcode.getBytes(Encoding_Format),
+        byte[] doubleEncryptTokenBytes = DESEncryptionHelper.encryptMessage(Client_Token_Key_Passcode.getBytes(Encoding_Format),
                 base64ServerToken.getBytes(Encoding_Format));
 
         String encryptedRoleToken = Utilities.getBase64EncodedString(doubleEncryptTokenBytes);

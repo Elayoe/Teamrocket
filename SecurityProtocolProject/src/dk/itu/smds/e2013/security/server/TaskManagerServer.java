@@ -4,6 +4,7 @@
  */
 package dk.itu.smds.e2013.security.server;
 
+import java.util.Random;
 import dk.itu.smds.e2013.security.DESEncryptionHelper;
 import dk.itu.smds.e2013.security.Utilities;
 import dk.itu.smds.e2013.serialization.common.Task;
@@ -23,14 +24,14 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.xml.bind.JAXBContext;
-
 /**
  *
  * @author rao
  */
 public class TaskManagerServer {
 
-    private static String Server_Key_Passcode = "Don't reveal the Secret";
+    private static String Token_Server_Key_Passcode = "Don't reveal the Secret";
+    private static String Server_Client_Key_Passcode = "You shall not pass";
     private static int serverPort = 8010;
     private static final String Encoding_Format = "UTF8";
     private static BufferedReader in;
@@ -41,7 +42,6 @@ public class TaskManagerServer {
     private static final SimpleDateFormat formatted = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     public static void main(String args[]) throws Exception {
-
 
         // hook on to conole input ..
         in = new BufferedReader(new InputStreamReader(System.in));
@@ -89,6 +89,34 @@ public class TaskManagerServer {
 
                 String serverTokenPlain;
 
+                // Process client data (1)
+                switch(requestArray[0]) {
+                case "authenticate":
+                	String incomingMessage = decryptServerToken(requestArray[1]);
+                	if(incomingMessage.split(";")[3].equals(Server_Client_Key_Passcode)) {
+
+                	//	Fails enryption of number. Need to be fixed before further steps can be taken
+                	String number = Integer.toString(new Random().nextInt(100001));
+                	String encrypedNumber =  Utilities.getBase64EncodedString(DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), number.getBytes()));
+                	String answer = "yes;" + encrypedNumber;
+                	
+                	// Try decript => fails
+                	System.out.println(Utilities.getBase64EncodedString(DESEncryptionHelper.decryptMessage(Server_Client_Key_Passcode.getBytes(), encrypedNumber.getBytes())));	
+                	
+                	writeToClient(answer);
+                	}
+                	else {
+                		writeToClient("no;" + Utilities.bytes2String(DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), "No valid authentification fool".getBytes())));
+                	}
+
+                	break;
+                case "execute":
+               
+                	System.out.println("not bad, not bad");
+                	break;
+                }
+     
+                
                 try {
                     serverTokenPlain = decryptServerToken(requestArray[0]);
                 } catch (Exception ex) {
@@ -170,7 +198,7 @@ public class TaskManagerServer {
         byte[] base64DecodedBytes = Utilities.getBase64DecodedBytes(serverToken);
 
 
-        byte[] decryptMessageBytes = DESEncryptionHelper.decryptMessage(Server_Key_Passcode.getBytes(Encoding_Format), base64DecodedBytes);
+        byte[] decryptMessageBytes = DESEncryptionHelper.decryptMessage(Token_Server_Key_Passcode.getBytes(Encoding_Format), base64DecodedBytes);
 
         String serverTokenPlain = Utilities.bytes2String(decryptMessageBytes);
 
