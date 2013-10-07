@@ -41,6 +41,7 @@ public class TokenService {
         // Add role mappings for users.
         roleMappings.put("rao", "student,teacher,ta");
         roleMappings.put("alse", "student");
+        roleMappings.put("nwal", "student");
 
 
         // hook on to conole input ..
