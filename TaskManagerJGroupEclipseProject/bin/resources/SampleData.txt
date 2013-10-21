@@ -1,0 +1,24 @@
+
+Task Manager Xml Paths:
+
+/Users/Rao/rao-data/cloud/Dropbox/Research-work/teaching/SMDS-E2013/week-07/projects/TaskManagerJGroupEclipseProject/src/resources/task-manager.xml
+
+/Users/Rao/rao-data/cloud/Dropbox/Research-work/teaching/SMDS-E2013/week-07/projects/TaskManagerJGroupEclipseProject/src/resources/task-manager.xml-1.xml
+
+/Users/Rao/rao-data/cloud/Dropbox/Research-work/teaching/SMDS-E2013/week-07/projects/TaskManagerJGroupEclipseProject/src/resources/task-manager.xml-2.xml
+
+
+
+Sample Task Xml in single line:
+
+
+<task id="handin-extra" name="Submit extra assignment" date="11-12-2013" status="not-executed"><description>Extra Work on mandatory assignment.</description><attendants>student-01, student-02</attendants><role>student</role></task>
+
+
+<task id="approve-extra-assn" name="extra assignment approved" date="16-12-2013" status="not-executed"><description>Approve extra assignment and inform students.</description><attendants>TA-01, Rao</attendants><role>ta, teacher</role>     
+
+
+
+
+
+
