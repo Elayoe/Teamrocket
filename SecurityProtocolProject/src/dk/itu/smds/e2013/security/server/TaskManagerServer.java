@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -24,6 +25,8 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.xml.bind.JAXBContext;
+
+import com.sun.xml.internal.messaging.saaj.util.Base64;
 /**
  *
  * @author rao
@@ -68,9 +71,11 @@ public class TaskManagerServer {
 
             System.out.println("Server started at: " + serverPort);
 
-            while (true) {
-
+            
                 socket = serverSocket.accept(); // blocking call
+
+
+                while (true) {
 
                 // Data Input and output streams
                 dis = new DataInputStream(socket.getInputStream());
@@ -82,12 +87,6 @@ public class TaskManagerServer {
 
                 String[] requestArray = request.split(";");
 
-                if (requestArray.length != 2) {
-                    writeToClient("Invalid request! The format of requst should be [server token];[task-id]");
-                    continue;
-                }
-
-                String serverTokenPlain;
 
                 // Process client data (1)
                 switch(requestArray[0]) {
@@ -95,14 +94,11 @@ public class TaskManagerServer {
                 	String incomingMessage = decryptServerToken(requestArray[1]);
                 	if(incomingMessage.split(";")[3].equals(Server_Client_Key_Passcode)) {
 
-                	//	Fails enryption of number. Need to be fixed before further steps can be taken
-                	String number = Integer.toString(new Random().nextInt(100001));
-                	String encrypedNumber =  Utilities.getBase64EncodedString(DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), number.getBytes()));
+                	String number = Integer.toString(new Random().nextInt());
+                	byte[] encrypt = DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), number.getBytes());
+                	String encrypedNumber =  Utilities.getBase64EncodedString(encrypt);
                 	String answer = "yes;" + encrypedNumber;
-                	
-                	// Try decript => fails
-                	System.out.println(Utilities.getBase64EncodedString(DESEncryptionHelper.decryptMessage(Server_Client_Key_Passcode.getBytes(), encrypedNumber.getBytes())));	
-                	
+                
                 	writeToClient(answer);
                 	}
                 	else {
@@ -111,66 +107,69 @@ public class TaskManagerServer {
 
                 	break;
                 case "execute":
-               
+                	
                 	System.out.println("not bad, not bad");
                 	break;
                 }
-     
-                
-                try {
-                    serverTokenPlain = decryptServerToken(requestArray[0]);
-                } catch (Exception ex) {
-
-                    System.out.println(ex.getMessage());
-
-                    writeToClient("Failed to decrypt server token! Your request can not be processed!");
-
-                    continue;
-                }
-
-                System.out.println("Current Date Time: " + getCurrentDateTime());
-                System.out.println("Decrypted token: " + serverTokenPlain);
 
 
-
-                String[] tokenArray = serverTokenPlain.split(";");
-
-
-                if (tokenArray.length != 2) {
-                    writeToClient("Invalid server token! The Format of server token should be [role];[timestamp]");
-                    continue;
-                }
-
-                if (!validateTimestamp(tokenArray[1])) {
-
-                    writeToClient("Timestamp for server token expired! The client request can not be processed!");
-                    continue;
-                }
-
-                Task requestedtask = GetTask(taskManager, requestArray[1]);
-
-                if (requestedtask == null) {
-
-                    writeToClient("Task with Id:" + requestArray[1] + " can not be found in task manager!");
-                    continue;
-                }
-
-
-
-                //if (!requestedtask.role.contains(tokenArray[0])) {
-                if (!matchRolemappings(requestedtask.role, tokenArray[0])) {
-
-                    writeToClient("The client is not authorized to execute task with Id:" + requestArray[1] + " due to role mismatch!");
-                    
-                    continue;
-                }
-
-                // Finnaly if ewverything goes well update the task.
-                requestedtask.status = "executed";
-
-                
-
-                writeToClient("The task with Id:" + requestArray[1] + " executed successfully!");
+//                String serverTokenPlain;
+//
+//                
+//                try {
+//                    serverTokenPlain = decryptServerToken(requestArray[0]);
+//                } catch (Exception ex) {
+//
+//                    System.out.println(ex.getMessage());
+//
+//                    writeToClient("Failed to decrypt server token! Your request can not be processed!");
+//
+//                    continue;
+//                }
+//
+//                System.out.println("Current Date Time: " + getCurrentDateTime());
+//                System.out.println("Decrypted token: " + serverTokenPlain);
+//
+//                
+//
+//                String[] tokenArray = serverTokenPlain.split(";");
+//
+//
+//                if (tokenArray.length != 2) {
+//                    writeToClient("Invalid server token! The Format of server token should be [role];[timestamp]");
+//                    continue;
+//                }
+//
+//                if (!validateTimestamp(tokenArray[1])) {
+//
+//                    writeToClient("Timestamp for server token expired! The client request can not be processed!");
+//                    continue;
+//                }
+//
+//                Task requestedtask = GetTask(taskManager, requestArray[1]);
+//
+//                if (requestedtask == null) {
+//
+//                    writeToClient("Task with Id:" + requestArray[1] + " can not be found in task manager!");
+//                    continue;
+//                }
+//
+//
+//
+//                //if (!requestedtask.role.contains(tokenArray[0])) {
+//                if (!matchRolemappings(requestedtask.role, tokenArray[0])) {
+//
+//                    writeToClient("The client is not authorized to execute task with Id:" + requestArray[1] + " due to role mismatch!");
+//                    
+//                    continue;
+//                }
+//
+//                // Finnaly if ewverything goes well update the task.
+//                requestedtask.status = "executed";
+//
+//                
+//
+//                writeToClient("The task with Id:" + requestArray[1] + " executed successfully!");
 
             }
 

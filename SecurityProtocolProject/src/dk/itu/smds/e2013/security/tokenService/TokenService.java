@@ -1,7 +1,7 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+* To change this template, choose Tools | Templates
+* and open the template in the editor.
+*/
 package dk.itu.smds.e2013.security.tokenService;
 
 import dk.itu.smds.e2013.security.DESEncryptionHelper;
@@ -23,9 +23,9 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
 /**
- *
- * @author rao
- */
+*
+* @author rao
+*/
 public class TokenService {
 
     private static HashMap<String, String> roleMappings = new HashMap();
@@ -52,9 +52,9 @@ public class TokenService {
 
         DataInputStream dis;
 
-//        DataOutputStream dos;
+// DataOutputStream dos;
 //
-//        ObjectInputStream ois;
+// ObjectInputStream ois;
 
         ObjectOutputStream oos;
 
@@ -204,7 +204,7 @@ public class TokenService {
         else
         {
             // if no role mapping is found, defaulted to student role.
-            System.out.println("No role mapping found for user: " + userNameArray[1] 
+            System.out.println("No role mapping found for user: " + userNameArray[1]
                     + ". Therefore the role has been defaulted to 'student'." );
             
             role = "student";

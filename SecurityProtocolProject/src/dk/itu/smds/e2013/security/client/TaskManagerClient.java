@@ -99,18 +99,8 @@ public class TaskManagerClient {
 
 
 
-        while (true) {
+        
 
-            System.out.println("Please enter taks id to execute! or enter 'exit' to stop the program!");
-
-
-            System.out.println(">");
-
-            String taskId = in.readLine();
-
-            if (taskId.toLowerCase().equals("exit")) {
-                return;
-            }
 
             // Format: serverToken;taskid
             String serverMessage = "authenticate;" + serverToken64format.split(";")[0];
@@ -124,7 +114,7 @@ public class TaskManagerClient {
 
             dos.flush();
 
-
+            while (true) {
             // open an object stream and get the rolebased security token object.
             dis = new DataInputStream(socket.getInputStream());
             
@@ -134,14 +124,29 @@ public class TaskManagerClient {
             // Process server response
             switch(answer[0]) {
             case "yes":
-            	String serverAnswer = Utilities.bytes2String((DESEncryptionHelper.decryptMessage(Server_Client_Key_Passcode.getBytes(), answer[1].getBytes())));
-            	int noncy = Integer.parseInt(serverAnswer) - 1;
-            	String nonce = noncy + "";
-            		   nonce = Utilities.bytes2String(DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), nonce.getBytes()));
-            	String data = Utilities.bytes2String(DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), taskId.getBytes())); 
             	
-            	String result = "execute;" + nonce + ";" + data;
+            	// Decrypt Number
+            	byte[] encryptedServerAnswerInBytes = Utilities.getBase64DecodedBytes(answer[1]);             
+            	byte[] decryptedServerAnswerInBytes = DESEncryptionHelper.decryptMessage(Server_Client_Key_Passcode.getBytes(), encryptedServerAnswerInBytes);
+            	String decrytpedServerAnswerAsString = new String(decryptedServerAnswerInBytes);
+           	    int serverNonce = Integer.parseInt(decrytpedServerAnswerAsString);
             	
+           	    System.out.println("Nonce by Server: " + serverNonce);	
+            	
+           	    // Create Own number
+            	int noncy = serverNonce - 1;
+            	String clientNonce = noncy + "";
+            		   clientNonce = Utilities.bytes2String(DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), clientNonce.getBytes()));
+            	
+            	// Get desired task
+            	String taskId = getTask();
+            	
+            	if(taskId == null)return;
+            	
+                String data = Utilities.bytes2String(DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), taskId.getBytes())); 
+            	
+            	String result = "execute;" + clientNonce + ";" + data;
+      
             	dos.writeUTF(result);
             	dos.flush();
             	
@@ -249,5 +254,27 @@ public class TaskManagerClient {
         return Utilities.getBase64EncodedString(encryptTokenBytes);
 
 
+    }
+    
+    
+    private static String getTask() {
+      System.out.println("Please enter taks id to execute! or enter 'exit' to stop the program!");
+
+
+      System.out.println(">");
+
+      String taskId = "";
+      
+      try {
+    	  taskId = in.readLine();
+       } catch (IOException e) {
+		e.printStackTrace();
+      	}
+
+      	if (taskId.toLowerCase().equals("exit")) {
+          return null;
+      	}
+      
+      return taskId;
     }
 }
