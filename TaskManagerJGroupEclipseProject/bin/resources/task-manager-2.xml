@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cal>
+	<tasks>
+		<task id="review-01" name="Review and check assignment" date="17-12-2013"
+			status="not-executed">
+			<attendants>TA-01,Rao</attendants>
+			<role>ta</role>
+		</task>
+		<task id="reject-01" name="ask to resubmit the assignment" date="17-12-2013"
+			status="not-executed">
+			<attendants>TA-01, Rao</attendants>
+			<role>ta, teacher</role>
+		</task>
+		<task id="approve-01" name="mandatory assignment 01 approved"
+			date="17-12-2013" status="not-executed">
+			<attendants>TA-01, Rao</attendants>
+			<role>ta, teacher</role>
+		</task>
+	</tasks>
+</cal>
