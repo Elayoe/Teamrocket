@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<envelope>
+        <!--  Commands: add, update, delete,...  -->
+    <command>add</command>
+        <!-- Data for command which may be Xml for task or tasks or some other data...    -->
+    <data>
+
+    
+    </data> 
+</envelope>
