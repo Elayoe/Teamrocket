@@ -13,6 +13,8 @@ import java.net.Socket;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Random;
+
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
@@ -106,20 +108,20 @@ public class TaskManagerClient {
 
 		dos.flush();
 
-		
+		// open an object stream and get the rolebased security token
+		dis = new DataInputStream(socket.getInputStream());
 		
 		
 		while (true) {
 			
-			// open an object stream and get the rolebased security token
-			dis = new DataInputStream(socket.getInputStream());
+			
 			// Read server message
 			String[] answer = dis.readUTF().split(";");
 
 			
 			if (answer.length > 2) {
 				byte[] encryptedServerMessageInBytes = Utilities
-						.getBase64DecodedBytes(answer[3]);
+						.getBase64DecodedBytes(answer[2]);
 				byte[] decryptedServerMessageInBytes = DESEncryptionHelper
 						.decryptMessage(Server_Client_Key_Passcode.getBytes(),
 								encryptedServerMessageInBytes);
@@ -134,42 +136,35 @@ public class TaskManagerClient {
 			case "yes":
 
 				// Decrypt Number
-				byte[] encryptedServerAnswerInBytes = Utilities
-						.getBase64DecodedBytes(answer[1]);
-				byte[] decryptedServerAnswerInBytes = DESEncryptionHelper
-						.decryptMessage(Server_Client_Key_Passcode.getBytes(),
-								encryptedServerAnswerInBytes);
-				String decrytpedServerAnswerAsString = new String(
-						decryptedServerAnswerInBytes);
-				int serverNonce = Integer
-						.parseInt(decrytpedServerAnswerAsString);
+				byte[] encryptedServerAnswerInBytes = Utilities.getBase64DecodedBytes(answer[1]);
+				byte[] decryptedServerAnswerInBytes = DESEncryptionHelper.decryptMessage(Server_Client_Key_Passcode.getBytes(),	encryptedServerAnswerInBytes);
+				String decrytpedServerAnswerAsString = new String(decryptedServerAnswerInBytes);
+				int serverNonce = Integer.parseInt(decrytpedServerAnswerAsString);
 
 				System.out.println("Nonce by Server: " + serverNonce);
 
 				// Create Own number
 				int noncy = serverNonce - 1;
 				String clientNonce = noncy + "";
-				clientNonce = Utilities.bytes2String(DESEncryptionHelper
-						.encryptMessage(Server_Client_Key_Passcode.getBytes(),
-								clientNonce.getBytes()));
-
+				byte[] encryptClientNonce = DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), clientNonce.getBytes());
+				String encrypedClientNonce = Utilities.getBase64EncodedString(encryptClientNonce);
+		
+				
+				
 				// Get desired task
 				String taskId = getTask();
 
 				if (taskId == null) {
-					dis.close();
 					continue; }
 
-				String data = Utilities.bytes2String(DESEncryptionHelper
-						.encryptMessage(Server_Client_Key_Passcode.getBytes(),
-								taskId.getBytes()));
+				byte[] encryptClientData = DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), taskId.getBytes());
+				String encryptedClientData = Utilities.getBase64EncodedString(encryptClientData);
 
-				String result = "execute;" + clientNonce + ";" + data;
-
+				String result = "execute;" + encrypedClientNonce + ";" + encryptedClientData;
 				dos.writeUTF(result);
 				dos.flush();
 
-				break;
+				continue;
 			case "no":
 				String errorMessage = Utilities
 						.bytes2String((DESEncryptionHelper.decryptMessage(
