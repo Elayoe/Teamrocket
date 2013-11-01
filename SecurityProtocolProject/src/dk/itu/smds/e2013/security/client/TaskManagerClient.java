@@ -77,6 +77,7 @@ public class TaskManagerClient {
 		}
 
 		String serverToken64format;
+		
 		// Get the once encrypted message from the token service
 		try {
 			serverToken64format = getServerToken(roleBasedToken.token);
@@ -110,23 +111,18 @@ public class TaskManagerClient {
 
 		// open an object stream and get the rolebased security token
 		dis = new DataInputStream(socket.getInputStream());
-		
-		
+
+		// Communication loop the run multiple tasks
 		while (true) {
-			
-			
+
 			// Read server message
 			String[] answer = dis.readUTF().split(";");
 
-			
+			// If server answer contains message
 			if (answer.length > 2) {
-				byte[] encryptedServerMessageInBytes = Utilities
-						.getBase64DecodedBytes(answer[2]);
-				byte[] decryptedServerMessageInBytes = DESEncryptionHelper
-						.decryptMessage(Server_Client_Key_Passcode.getBytes(),
-								encryptedServerMessageInBytes);
-				String serverAnswerMessage = new String(
-						decryptedServerMessageInBytes);
+
+				String serverAnswerMessage = decryptString(answer[2],
+						Server_Client_Key_Passcode);
 
 				System.out.println(serverAnswerMessage);
 			}
@@ -136,46 +132,110 @@ public class TaskManagerClient {
 			case "yes":
 
 				// Decrypt Number
-				byte[] encryptedServerAnswerInBytes = Utilities.getBase64DecodedBytes(answer[1]);
-				byte[] decryptedServerAnswerInBytes = DESEncryptionHelper.decryptMessage(Server_Client_Key_Passcode.getBytes(),	encryptedServerAnswerInBytes);
-				String decrytpedServerAnswerAsString = new String(decryptedServerAnswerInBytes);
-				int serverNonce = Integer.parseInt(decrytpedServerAnswerAsString);
+				int serverNonce = Integer.parseInt(decryptString(answer[1],
+						Server_Client_Key_Passcode));
 
 				System.out.println("Nonce by Server: " + serverNonce);
 
 				// Create Own number
 				int noncy = serverNonce - 1;
 				String clientNonce = noncy + "";
-				byte[] encryptClientNonce = DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), clientNonce.getBytes());
-				String encrypedClientNonce = Utilities.getBase64EncodedString(encryptClientNonce);
-		
-				
-				
+				String encryptedClientNonce = encryptString(clientNonce,
+						Server_Client_Key_Passcode);
+
 				// Get desired task
 				String taskId = getTask();
 
 				if (taskId == null) {
-					continue; }
+					continue;
+				}
 
-				byte[] encryptClientData = DESEncryptionHelper.encryptMessage(Server_Client_Key_Passcode.getBytes(), taskId.getBytes());
-				String encryptedClientData = Utilities.getBase64EncodedString(encryptClientData);
+				// Encrypt task
+				String encryptedClientData = encryptString(taskId,
+						Server_Client_Key_Passcode);
 
-				String result = "execute;" + encrypedClientNonce + ";" + encryptedClientData;
+				// build and send message to the server
+				String result = "execute;" + encryptedClientNonce + ";"
+						+ encryptedClientData;
 				dos.writeUTF(result);
 				dos.flush();
 
 				continue;
 			case "no":
-				String errorMessage = Utilities
-						.bytes2String((DESEncryptionHelper.decryptMessage(
-								Server_Client_Key_Passcode.getBytes(),
-								answer[1].getBytes())));
-				System.out.println(errorMessage);
-				break;
-			}
+				// Decrypt Number
+				serverNonce = Integer.parseInt(decryptString(answer[1],
+						Server_Client_Key_Passcode));
 
+				System.out.println("Nonce by Server: " + serverNonce);
+
+				// Create Own number
+				noncy = serverNonce - 1;
+				clientNonce = noncy + "";
+				encryptedClientNonce = encryptString(clientNonce,
+						Server_Client_Key_Passcode);
+
+				// Get desired task
+				taskId = getTask();
+
+				if (taskId == null) {
+					continue;
+				}
+
+				// Encrypt desired task
+				encryptedClientData = encryptString(taskId,
+						Server_Client_Key_Passcode);
+
+				// build and send message to the server
+				result = "execute;" + encryptedClientNonce + ";"
+						+ encryptedClientData;
+				dos.writeUTF(result);
+				dos.flush();
+			}
+			continue;
+		}
+	}
+
+	/**
+	 * Ecrypt message with specific passcode
+	 * @param message to encrypt
+	 * @param passcode to encrypt
+	 * @return Encrypted message
+	 */
+	private static String encryptString(String message, String passcode) {
+
+		String encryptedMessage = "";
+
+		try {
+			byte[] encryptMessage = DESEncryptionHelper.encryptMessage(
+					passcode.getBytes(), message.getBytes());
+			encryptedMessage = Utilities.getBase64EncodedString(encryptMessage);
+		} catch (Exception e) {
 		}
 
+		return encryptedMessage;
+	}
+
+	/**
+	 * Decrypt message with specific passcode
+	 * @param encryptedMessage to decrypt
+	 * @param passcode to decrypt
+	 * @return The decrypted message
+	 */
+	private static String decryptString(String encryptedMessage, String passcode) {
+
+		String decryptedMessageAsString = "";
+
+		try {
+			byte[] encryptedMessageInBytes = Utilities
+					.getBase64DecodedBytes(encryptedMessage);
+			byte[] decryptedMessageInBytes = DESEncryptionHelper
+					.decryptMessage(passcode.getBytes(),
+							encryptedMessageInBytes);
+			decryptedMessageAsString = new String(decryptedMessageInBytes);
+		} catch (Exception e) {
+		}
+
+		return decryptedMessageAsString;
 	}
 
 	private static String getServerToken(String tokenFromTokenService)
