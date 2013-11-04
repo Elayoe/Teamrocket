@@ -35,7 +35,7 @@ public class TaskReceiver2 extends ReceiverAdapter {
     private JChannel channelTasks;
     private String prefix = "[receiver]: ";
 
-    public String hostProcessAddresss = "";
+    public String hostProcessAddress = "";
 
     public TaskReceiver2(TaskProvider provider, JChannel channel) {
 
@@ -72,7 +72,7 @@ public class TaskReceiver2 extends ReceiverAdapter {
         if (DeserializeEnvelope.command.equals("execute")) {
 
             // Only handle the command if it is from other sources.
-            if (!messageSourceId.equals(hostProcessAddresss)) {
+            if (!messageSourceId.equals(hostProcessAddress)) {
 
                 Task task = GetTaskWithId(DeserializeEnvelope.taskId);
 
@@ -90,10 +90,10 @@ public class TaskReceiver2 extends ReceiverAdapter {
                         System.out.println(prefix + "Failed to persist envelope Xml. Error message" + ex);
                     }
 
-                    System.out.println(hostProcessAddresss + sourceInfo + " Task :" + DeserializeEnvelope.taskId + " executed successfully! ");
+                    System.out.println(hostProcessAddress + sourceInfo + " Task :" + DeserializeEnvelope.taskId + " executed successfully! ");
                 } else {
 
-                    System.out.println(hostProcessAddresss + sourceInfo + " Error: Task :" + DeserializeEnvelope.taskId + " NOT found! ");
+                    System.out.println(hostProcessAddress + sourceInfo + " Error: Task :" + DeserializeEnvelope.taskId + " NOT found! ");
 
                 }
 
@@ -102,7 +102,7 @@ public class TaskReceiver2 extends ReceiverAdapter {
         } else if (DeserializeEnvelope.command.equals("request")) {
 
             // Only handle the command if it is from other sources.
-            if (!messageSourceId.equals(hostProcessAddresss)) {
+            if (!messageSourceId.equals(hostProcessAddress)) {
 
                 Task task = GetTaskWithId(DeserializeEnvelope.taskId);
 
@@ -118,36 +118,55 @@ public class TaskReceiver2 extends ReceiverAdapter {
                         System.out.println(prefix + "Failed to persist envelope Xml. Error message" + ex);
                     }
 
-                    System.out.println(hostProcessAddresss + sourceInfo + " Task :" + DeserializeEnvelope.taskId + " marked as required successfully! ");
+                    System.out.println(hostProcessAddress + sourceInfo + " Task :" + DeserializeEnvelope.taskId + " marked as required successfully! ");
                 } else {
 
-                    System.out.println(hostProcessAddresss + sourceInfo + " Error: Task :" + DeserializeEnvelope.taskId + " NOT found! ");
+                    System.out.println(hostProcessAddress + sourceInfo + " Error: Task :" + DeserializeEnvelope.taskId + " NOT found! ");
 
                 }
 
             }
         } else if(DeserializeEnvelope.lock.equals("requestLock")){
-        	if(TaskManagerServer.hashTable.contains(DeserializeEnvelope.taskId)){
-        		envelope.initiator = hostProcessAddresss;
+        	
+        	// Only handle the command if it is from other sources.
+            if (!messageSourceId.equals(hostProcessAddress)) {
+            	
+            	System.out.println("Got a request from " + hostProcessAddress);
+            	
+            	if(TaskManagerServer.hashTable.contains(DeserializeEnvelope.taskId)){
+            		envelope.initiator = hostProcessAddress;
 
-                envelope.lock = "denyLock";
+            		envelope.lock = "denyLock";
 
-                envelope.taskId = DeserializeEnvelope.taskId;
+            		envelope.taskId = DeserializeEnvelope.taskId;
 
-                WriteEnvelopeToChannel(envelope, channelTasks);
-        	} else {
-        		TaskManagerServer.setHashTable(DeserializeEnvelope.taskId);
-        		envelope.initiator = hostProcessAddresss;
+            		WriteEnvelopeToChannel(envelope, channelTasks);
+            		
+            	} else {
+            		
+            		TaskManagerServer.setHashTable(DeserializeEnvelope.taskId);
+        		
+            		envelope.initiator = hostProcessAddress;
 
-                envelope.lock = "grantLock";
+            		envelope.lock = "grantLock";
 
-                envelope.taskId = DeserializeEnvelope.taskId;
+            		envelope.taskId = DeserializeEnvelope.taskId;
 
-                WriteEnvelopeToChannel(envelope, channelTasks);
+            		WriteEnvelopeToChannel(envelope, channelTasks);
+            	}
         	}
+            
         } else if(DeserializeEnvelope.lock.equals("grantLock")){
-        	TaskManagerServer.hashTable.put(DeserializeEnvelope.taskId, 
-        			TaskManagerServer.hashTable.get(DeserializeEnvelope.taskId)-1);
+        	
+        	System.out.println("GrantLock recieved from " + hostProcessAddress);
+        	
+        	// Only handle the command if it is from other sources.
+            if (!messageSourceId.equals(hostProcessAddress)) {
+            	
+            	TaskManagerServer.hashTable.put(DeserializeEnvelope.taskId, 
+            			TaskManagerServer.hashTable.get(DeserializeEnvelope.taskId)-1);	
+            }
+            
         } else if(DeserializeEnvelope.lock.equals("denyLock")){
         	// abort loop
         	

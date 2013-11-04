@@ -10,6 +10,7 @@ import dk.itu.smds.e2013.serialization.common.Envelope;
 import dk.itu.smds.e2013.serialization.common.Task;
 import dk.itu.smds.e2013.serialization.common.TaskSerializer;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -73,7 +74,7 @@ public class TaskManagerServer {
 
         hostProcessAddresss = channelTasks.getAddress().toString();
 
-        receiver2.hostProcessAddresss = hostProcessAddresss;
+        receiver2.hostProcessAddress = hostProcessAddresss;
 
         System.out.println("Channel address:" + channelTasks.getAddress().toString());
 
@@ -112,45 +113,12 @@ public class TaskManagerServer {
                         //Write Task To Channel
                         taskId = in.readLine();
                         
-                        //setHashTable(taskId);
+                        setHashTable(taskId);
                         
                         // send envelope to the channel for informing the changes to the other
                         envelope.initiator = hostProcessAddresss;
 
                         envelope.lock = "requestLock";
-
-                        envelope.taskId = taskId;
-
-                        WriteEnvelopeToChannel(envelope, channelTasks);
-                        
-                        while(hashTable.get(taskId) != 0){
-                        	continue;
-                        }
-
-                        // First execute the task at local server and then 
-                        // send the envelope to channel.
-                        Task exeTask = getTaskWithId(taskId);
-
-                        if (exeTask == null) {
-
-                            System.out.println(messagePrefix + "*** Error ***: The task with Id: " + taskId
-                                    + " not found in the task manager! Therefore task can't be executed!");
-
-                            break;
-                        }
-
-                        exeTask.status = "executed";
-
-                        exeTask.required = "false";
-
-                        provider.PersistTaskManager();
-
-                        System.out.println(messagePrefix + "The task with Id: " + taskId + " executed successfully! ");
-
-                        // send envelope to the channel for informing the changes to the other
-                        envelope.initiator = hostProcessAddresss;
-
-                        envelope.command = command;
 
                         envelope.taskId = taskId;
 
@@ -296,6 +264,51 @@ public class TaskManagerServer {
     
     public static Hashtable getHashTable(){
     	return hashTable;
+    }
+    
+    public void doExecute(String taskId){
+    	
+    	// First execute the task at local server and then 
+        // send the envelope to channel.
+        Task exeTask = getTaskWithId(taskId);
+    	
+    	if (exeTask == null) {
+
+            System.out.println(messagePrefix + "*** Error ***: The task with Id: " + taskId
+                    + " not found in the task manager! Therefore task can't be executed!");
+        }
+
+        exeTask.status = "executed";
+
+        exeTask.required = "false";
+
+        try {
+			provider.PersistTaskManager();
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        System.out.println(messagePrefix + "The task with Id: " + taskId + " executed successfully! ");
+
+        // send envelope to the channel for informing the changes to the other
+        Envelope envelope = new Envelope();
+        
+        envelope.initiator = hostProcessAddresss;
+
+        envelope.command = "execute";
+
+        envelope.taskId = taskId;
+
+        try {
+			WriteEnvelopeToChannel(envelope, channelTasks);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
 }
