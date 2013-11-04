@@ -46,8 +46,8 @@ public class TaskManagerServer {
         System.out.println(">");
 
         try {
-
-            String taskXmlPath = "/Users/Nicki/Documents/ITU/BMDS/TeamRocket/TaskManagerJGroupConcurrency-Eclipse/src/resources/" + in.readLine();
+        	
+            String taskXmlPath = "C:\\Users\\test.Alex-Laptop\\Documents\\GitHub\\TeamRocket\\TaskManagerJGroupConcurrency-Eclipse\\src\\resources\\task-manager" + in.readLine();
 
             // First load the tasks from the task manager Xml.
             provider = new TaskProvider(taskXmlPath);
@@ -91,9 +91,7 @@ public class TaskManagerServer {
             try {
             	
                 System.out.println("Usage: 'execute' | 'request' | 'trace' | 'exit' ");
-
-                System.out.print("> ");
-
+                
                 System.out.flush();
 
                 String command = in.readLine().toLowerCase();
@@ -107,63 +105,51 @@ public class TaskManagerServer {
                     case "execute":
 
                         System.out.println("type id of task you would like to execute!");
-
-                        System.out.print("> ");
-
+                        
                         //Write Task To Channel
                         taskId = in.readLine();
+                                       
+                        checkTask(taskId);
                         
                         setHashTable(taskId);
                         
                         // send envelope to the channel for informing the changes to the other
                         envelope.initiator = hostProcessAddresss;
-
                         envelope.lock = "requestLock";
-
+                        envelope.command = "execute";
                         envelope.taskId = taskId;
 
                         WriteEnvelopeToChannel(envelope, channelTasks);
 
+                        
+                        System.out.println("Origin: Execute task\t\t" + taskId);
+                        
                         break;
 
                     case "request":
 
                         System.out.println("type id of task you would like to mark as required!");
 
-                        System.out.print("> ");
-
                         //Write Task To Channel
                         taskId = in.readLine();
                         
+                        checkTask(taskId);
+                        
                         setHashTable(taskId);
-
-                        // First execute the task at local server and then 
-                        // send the envelope to channel.
-                        Task task = getTaskWithId(taskId);
-
-                        if (task == null) {
-
-                            System.out.println(messagePrefix + "*** Error ***: The task with Id: " + taskId
-                                    + " not found in the task manager! Therefore task can't be marked as required!");
-
-                            break;
-                        }
-
-                        task.required = "true";
-
-                        provider.PersistTaskManager();
-
-                        System.out.println(messagePrefix + "The task with Id: " + taskId + " marked as required successfully! ");
 
                         // send envelope to the channel for informing the changes to the other
                         envelope.initiator = hostProcessAddresss;
 
+                        envelope.lock = "requestLock";
                         envelope.command = command;
 
                         envelope.taskId = taskId;
 
                         WriteEnvelopeToChannel(envelope, channelTasks);
 
+                        System.out.println("Origin: Request task " + taskId);
+                        
+                        
                         break;
 
 
@@ -180,7 +166,7 @@ public class TaskManagerServer {
                         System.out.println("Error: Unknown command: " + command);
 
                 }
-
+                
             } catch (Exception e) {
                 System.out.println("Exit from EventLoop! Error message:" + e.getMessage());
 
@@ -219,7 +205,7 @@ public class TaskManagerServer {
 
         Random randomGenerator = new Random();
 
-        return randomGenerator.nextInt(50000);
+        return randomGenerator.nextInt(20000);
 
     }
 
@@ -266,7 +252,7 @@ public class TaskManagerServer {
     	return hashTable;
     }
     
-    public void doExecute(String taskId){
+    public void checkTask(String taskId){
     	
     	// First execute the task at local server and then 
         // send the envelope to channel.
@@ -277,38 +263,5 @@ public class TaskManagerServer {
             System.out.println(messagePrefix + "*** Error ***: The task with Id: " + taskId
                     + " not found in the task manager! Therefore task can't be executed!");
         }
-
-        exeTask.status = "executed";
-
-        exeTask.required = "false";
-
-        try {
-			provider.PersistTaskManager();
-		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-        System.out.println(messagePrefix + "The task with Id: " + taskId + " executed successfully! ");
-
-        // send envelope to the channel for informing the changes to the other
-        Envelope envelope = new Envelope();
-        
-        envelope.initiator = hostProcessAddresss;
-
-        envelope.command = "execute";
-
-        envelope.taskId = taskId;
-
-        try {
-			WriteEnvelopeToChannel(envelope, channelTasks);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
     }
-
 }
