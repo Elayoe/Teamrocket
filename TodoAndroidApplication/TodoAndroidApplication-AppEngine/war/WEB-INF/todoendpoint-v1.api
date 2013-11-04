@@ -1,0 +1,256 @@
+{
+  "extends" : "thirdParty.api",
+  "abstract" : false,
+  "root" : "https://todo-rest-android-application.appspot.com/_ah/api",
+  "name" : "todoendpoint",
+  "version" : "v1",
+  "defaultVersion" : false,
+  "adapter" : {
+    "bns" : "https://todo-rest-android-application.appspot.com/_ah/spi",
+    "deadline" : 10.0,
+    "type" : "lily"
+  },
+  "auth" : {
+    "allowCookieAuth" : false
+  },
+  "frontendLimits" : {
+    "unregisteredUserQps" : -1,
+    "unregisteredQps" : -1,
+    "unregisteredDaily" : -1,
+    "rules" : [ ]
+  },
+  "cacheControl" : {
+    "type" : "no-cache",
+    "maxAge" : 0
+  },
+  "ownerDomain" : "itu.dk",
+  "ownerName" : "itu.dk",
+  "packagePath" : "smds.e2013.todoandroidapplication",
+  "methods" : {
+    "todoendpoint.getTodo" : {
+      "path" : "todo/{id}",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.getTodo",
+      "request" : {
+        "parameters" : {
+          "id" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "todoendpoint.sendTodo" : {
+      "path" : "sendTodo/{id}/{description}/{summary}",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.sendTodo",
+      "request" : {
+        "parameters" : {
+          "id" : {
+            "type" : "string",
+            "required" : true
+          },
+          "description" : {
+            "type" : "string",
+            "required" : true
+          },
+          "summary" : {
+            "type" : "string",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "empty"
+      }
+    },
+    "todoendpoint.updateTodo" : {
+      "path" : "todo",
+      "httpMethod" : "PUT",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.updateTodo",
+      "request" : {
+        "body" : "autoTemplate(backendRequest)",
+        "bodyName" : "resource"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "todoendpoint.removeTodo" : {
+      "path" : "todo/{id}",
+      "httpMethod" : "DELETE",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.removeTodo",
+      "request" : {
+        "parameters" : {
+          "id" : {
+            "type" : "int64",
+            "required" : true
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "empty"
+      }
+    },
+    "todoendpoint.insertTodo" : {
+      "path" : "todo",
+      "httpMethod" : "POST",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.insertTodo",
+      "request" : {
+        "body" : "autoTemplate(backendRequest)",
+        "bodyName" : "resource"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    },
+    "todoendpoint.listTodo" : {
+      "path" : "todo",
+      "httpMethod" : "GET",
+      "authLevel" : "NONE",
+      "scopes" : [ "https://www.googleapis.com/auth/userinfo.email" ],
+      "audiences" : [ ],
+      "clientIds" : [ "292824132082.apps.googleusercontent.com" ],
+      "rosyMethod" : "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.listTodo",
+      "request" : {
+        "parameters" : {
+          "cursor" : {
+            "type" : "string",
+            "required" : false
+          },
+          "limit" : {
+            "type" : "int32",
+            "required" : false
+          }
+        },
+        "body" : "empty"
+      },
+      "response" : {
+        "body" : "autoTemplate(backendResponse)"
+      }
+    }
+  },
+  "descriptor" : {
+    "schemas" : {
+      "Todo" : {
+        "id" : "Todo",
+        "type" : "object",
+        "properties" : {
+          "key" : {
+            "$ref" : "Key"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "summary" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          }
+        }
+      },
+      "Key" : {
+        "id" : "Key",
+        "type" : "object",
+        "properties" : {
+          "kind" : {
+            "type" : "string"
+          },
+          "appId" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string",
+            "format" : "int64"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "parent" : {
+            "$ref" : "Key"
+          },
+          "complete" : {
+            "type" : "boolean"
+          },
+          "namespace" : {
+            "type" : "string"
+          }
+        }
+      },
+      "CollectionResponse_Todo" : {
+        "id" : "CollectionResponse_Todo",
+        "type" : "object",
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "Todo"
+            }
+          },
+          "nextPageToken" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "methods" : {
+      "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.getTodo" : {
+        "response" : {
+          "$ref" : "Todo"
+        }
+      },
+      "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.sendTodo" : {
+      },
+      "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.updateTodo" : {
+        "request" : {
+          "$ref" : "Todo"
+        },
+        "response" : {
+          "$ref" : "Todo"
+        }
+      },
+      "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.removeTodo" : {
+      },
+      "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.insertTodo" : {
+        "request" : {
+          "$ref" : "Todo"
+        },
+        "response" : {
+          "$ref" : "Todo"
+        }
+      },
+      "dk.itu.smds.e2013.todoandroidapplication.TodoEndpoint.listTodo" : {
+        "response" : {
+          "$ref" : "CollectionResponse_Todo"
+        }
+      }
+    }
+  }
+}

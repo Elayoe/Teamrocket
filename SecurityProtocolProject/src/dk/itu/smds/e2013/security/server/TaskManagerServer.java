@@ -151,6 +151,8 @@ public class TaskManagerServer {
 
 						writeError("The Server doesn't like you nonce bro");
 						
+						System.out.println("Error message sent by server");
+						
 						continue;
 					}
 
@@ -162,6 +164,8 @@ public class TaskManagerServer {
 
 						writeError("The Server doesn't like your timestamp anymore");
 
+						System.out.println("Error message sent by server");
+						
 						continue;
 					}
 
@@ -174,6 +178,8 @@ public class TaskManagerServer {
 						writeError("Task with Id:" + clientTask
 								+ " can not be found in task manager!");
 
+						System.out.println("Error message sent by server");
+						
 						continue;
 					}
 
@@ -185,6 +191,8 @@ public class TaskManagerServer {
 							writeError("The client is not authorized to execute task with Id:"
 									+ clientTask + " due to role mismatch!");
 
+							System.out.println("Error message sent by server");
+							
 							continue;
 						}
 					}
