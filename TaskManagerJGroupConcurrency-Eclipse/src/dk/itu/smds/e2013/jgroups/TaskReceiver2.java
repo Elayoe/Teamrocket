@@ -50,7 +50,7 @@ public class TaskReceiver2 extends ReceiverAdapter {
 
 	@Override
 	public void receive(Message msg) {
-		// We know that, we will always get Xml.
+		// We know that we will always get Xml.
 		Envelope envelope = new Envelope();
 
 		String envelopeXml = msg.getObject().toString();
@@ -62,8 +62,6 @@ public class TaskReceiver2 extends ReceiverAdapter {
 		try {
 			DeserializeEnvelope = TaskSerializer
 					.DeserializeEnvelope(envelopeXml);
-			// System.out.println("Input envelope received: " + inputData);
-			// We may get
 		} catch (JAXBException ex) {
 			System.out.println(prefix
 					+ "Failed to deserialize envelope Xml. Error message" + ex);
@@ -84,11 +82,10 @@ public class TaskReceiver2 extends ReceiverAdapter {
 
 		switch (lock) {
 		case "commit":
-
+			System.out.println("Received commit from " + messageSourceId);
 			if (command.equals("execute")) {
 				SetTaskAsExecuted(taskId);
-			}
-			else {
+			} else {
 				SetTaskAsRequested(taskId);
 			}
 
@@ -106,23 +103,17 @@ public class TaskReceiver2 extends ReceiverAdapter {
 				envelope.command = command;
 				envelope.taskId = taskId;
 
+				System.out.println("Sent DenyLock back");
 				WriteEnvelopeToChannel(envelope, channelTasks);
-				
-				System.out.println("Sent grantLock back");
-
 			} else {
-
-				TaskManagerServer.setHashTable(taskId);
 
 				envelope.initiator = messageSourceId;
 				envelope.lock = "grantLock";
 				envelope.command = command;
 				envelope.taskId = taskId;
 
-				WriteEnvelopeToChannel(envelope, channelTasks);
-				
 				System.out.println("Sent GrantLock back");
-
+				WriteEnvelopeToChannel(envelope, channelTasks);
 			}
 
 			break;
@@ -131,33 +122,40 @@ public class TaskReceiver2 extends ReceiverAdapter {
 
 			System.out.println("GrantLock recieved from\t\t" + messageSourceId
 					+ " to " + command + " " + taskId);
+			try {
+				int number = TaskManagerServer.hashTable.get(taskId) - 1;
 
-			int number = TaskManagerServer.hashTable.get(taskId) - 1;
+				TaskManagerServer.hashTable.put(taskId, number);
 
-			TaskManagerServer.hashTable.put(taskId, number);
+				// If we got all grants, set the task to executed and commit
+				if (number < 1) {
 
-			// If we got all grants, set the task to executed and commit
-			if (number == 0) {
+					// Delete entry from memory
+					TaskManagerServer.hashTable.remove(taskId);
 
-				if (command.equals("execute")) {
-					SetTaskAsExecuted(taskId);
-				} else {
-					SetTaskAsRequested(taskId);
+					if (command.equals("execute")) {
+						SetTaskAsExecuted(taskId);
+					} else {
+						SetTaskAsRequested(taskId);
+					}
+
+					envelope.initiator = messageSourceId;
+					envelope.lock = "commit";
+					envelope.command = command;
+					envelope.taskId = taskId;
+
+					System.out.println("Send commit");
+					WriteEnvelopeToChannel(envelope, channelTasks);
 				}
-
-				envelope.initiator = messageSourceId;
-				envelope.lock = "commit";
-				envelope.command = command;
-				envelope.taskId = taskId;
-
-				WriteEnvelopeToChannel(envelope, channelTasks);
-
+			} catch (NullPointerException e) {
+				System.out.println("Task was denied");
 			}
 
 			break;
 
-		default:
-			System.out.println("Sent DenyLock back");
+		case "denyLock":
+		    TaskManagerServer.hashTable.remove(taskId);
+			System.out.println("Received DenyLock by " + messageSourceId);
 			break;
 		}
 	}
@@ -175,18 +173,6 @@ public class TaskReceiver2 extends ReceiverAdapter {
 	@Override
 	public void viewAccepted(View new_view) {
 		System.out.println("** view: " + new_view);
-	}
-
-	private void SendAddTaskCommand(Task task) {
-
-		Envelope envelope = new Envelope();
-
-		envelope.command = "add";
-
-		envelope.data.add(task);
-
-		WriteEnvelopeToChannel(envelope, channelTasks);
-
 	}
 
 	private void WriteEnvelopeToChannel(Envelope envelope, JChannel channel) {
@@ -232,11 +218,9 @@ public class TaskReceiver2 extends ReceiverAdapter {
 				// Save change
 				provider.PersistTaskManager();
 
-				// Delete entry from memory
-				TaskManagerServer.hashTable.remove(taskId);
-
 				System.out.println("The task with Id:\t\t" + taskId
 						+ " executed successfully! ");
+
 			} catch (JAXBException ex) {
 				System.out.println(prefix
 						+ "Failed to persist envelope Xml. Error message" + ex);
@@ -262,9 +246,6 @@ public class TaskReceiver2 extends ReceiverAdapter {
 			try {
 				// Save change
 				provider.PersistTaskManager();
-
-				// Delete entry from memory
-				TaskManagerServer.hashTable.remove(taskId);
 
 				System.out.println("The task with Id:\t\t" + taskId
 						+ " marked as required successfully!");

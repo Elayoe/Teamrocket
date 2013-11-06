@@ -119,11 +119,15 @@ public class TaskManagerServer {
                         envelope.command = "execute";
                         envelope.taskId = taskId;
 
+                        
+                        // Here we make the thread to sleep for random amount of time < 1 sec,
+                        // so as to simulate some latency in network.
+                        Thread.sleep(generateRandomDelay());
+                        
+                        System.out.println("Host: Execute task\t\t" + taskId);
+                        
                         WriteEnvelopeToChannel(envelope, channelTasks);
-
-                        
-                        System.out.println("Origin: Execute task\t\t" + taskId);
-                        
+                      
                         break;
 
                     case "request":
@@ -139,17 +143,18 @@ public class TaskManagerServer {
 
                         // send envelope to the channel for informing the changes to the other
                         envelope.initiator = hostProcessAddresss;
-
                         envelope.lock = "requestLock";
                         envelope.command = command;
-
                         envelope.taskId = taskId;
 
+                        // Here we make the thread to sleep for random amount of time < 1 sec,
+                        // so as to simulate some latency in network.
+                        Thread.sleep(generateRandomDelay());
+          
+                        System.out.println("Host: Request task " + taskId);
+                        
                         WriteEnvelopeToChannel(envelope, channelTasks);
-
-                        System.out.println("Origin: Request task " + taskId);
-                        
-                        
+    
                         break;
 
 
@@ -184,11 +189,6 @@ public class TaskManagerServer {
     private void WriteEnvelopeToChannel(Envelope envelope, JChannel channel) throws Exception {
 
         try {
-
-            // Here we make the thread to sleep for random amount of time < 1 sec,
-            // so as to simulate some latency in network.
-            Thread.sleep(generateRandomDelay());
-
             String envelopeXml = TaskSerializer.SerializeEnvelope(envelope);
 
             Message msg = new Message(null, null, envelopeXml);
@@ -205,7 +205,7 @@ public class TaskManagerServer {
 
         Random randomGenerator = new Random();
 
-        return randomGenerator.nextInt(20000);
+        return randomGenerator.nextInt(50000);
 
     }
 
@@ -254,8 +254,6 @@ public class TaskManagerServer {
     
     public void checkTask(String taskId){
     	
-    	// First execute the task at local server and then 
-        // send the envelope to channel.
         Task exeTask = getTaskWithId(taskId);
     	
     	if (exeTask == null) {
