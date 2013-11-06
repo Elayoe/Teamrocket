@@ -78,19 +78,14 @@ public class TaskManagerServer {
 
 			socket = serverSocket.accept(); // blocking call
 
-			
-			
+			// Data Input stream
+			dis = new DataInputStream(socket.getInputStream());
+
 			while (true) {
-
-				// Data Input stream
-				dis = new DataInputStream(socket.getInputStream());
-
 				String request = dis.readUTF(); // blocking call
-
 				System.out.println("Received client Request: " + request);
 
 				String[] requestArray = request.split(";");
-	
 
 				// Process communication
 				switch (requestArray[0]) {
@@ -114,6 +109,9 @@ public class TaskManagerServer {
 						String answer = "yes;" + encrypedNumber;
 
 						writeToClient(answer);
+						System.out
+								.println("Authentification confirmation sent by server");
+
 					} else {
 						writeToClient("no;"
 								+ Utilities.bytes2String(DESEncryptionHelper
@@ -123,8 +121,6 @@ public class TaskManagerServer {
 												"No valid authentification fool"
 														.getBytes())));
 					}
-
-					
 					continue;
 				case "execute":
 					System.out.println("Try to execute");
@@ -150,23 +146,13 @@ public class TaskManagerServer {
 					String clientTask = new String(decryptedServerTaskInBytes);
 
 					if (nonce != (clientNonce + 1)) {
+
 						System.out.println("Nonce is not valid");
-						nonce = new Random().nextInt();
-						String numberAsString = nonce + "";
-						byte[] encrypt = DESEncryptionHelper.encryptMessage(
-								Server_Client_Key_Passcode.getBytes(),
-								numberAsString.getBytes());
-						String encrypedNumber = Utilities
-								.getBase64EncodedString(encrypt);
-						writeToClient("no;"
-								+ encrypedNumber
-								+ Utilities.bytes2String(DESEncryptionHelper
-										.encryptMessage(
-												Server_Client_Key_Passcode
-														.getBytes(),
-												"No valid nonce fool"
-														.getBytes())));
-					
+
+						writeError("The Server doesn't like you nonce bro");
+						
+						System.out.println("Error message sent by server");
+						
 						continue;
 					}
 
@@ -175,22 +161,11 @@ public class TaskManagerServer {
 
 					if (!validateTimestamp(timestamp)) {
 						System.out.println("Timestamp is not valid");
-						nonce = new Random().nextInt();
-						String numberAsString = nonce + "";
-						byte[] encrypt = DESEncryptionHelper.encryptMessage(
-								Server_Client_Key_Passcode.getBytes(),
-								numberAsString.getBytes());
-						String encrypedNumber = Utilities
-								.getBase64EncodedString(encrypt);
-						writeToClient("no;"
-								+ encrypedNumber
-								+ Utilities.bytes2String(DESEncryptionHelper
-										.encryptMessage(
-												Server_Client_Key_Passcode
-														.getBytes(),
-												"No valid timestamp fool"
-														.getBytes())));
-					
+
+						writeError("The Server doesn't like your timestamp anymore");
+
+						System.out.println("Error message sent by server");
+						
 						continue;
 					}
 
@@ -198,23 +173,12 @@ public class TaskManagerServer {
 
 					if (requestedtask == null) {
 
-						System.out.println("Task is not valid");
-						nonce = new Random().nextInt();
-						String numberAsString = nonce + "";
-						byte[] encrypt = DESEncryptionHelper.encryptMessage(
-								Server_Client_Key_Passcode.getBytes(),
-								numberAsString.getBytes());
-						String encrypedNumber = Utilities
-								.getBase64EncodedString(encrypt);
-						writeToClient("no;"
-								+ encrypedNumber
-								+ Utilities
-										.bytes2String(DESEncryptionHelper.encryptMessage(
-												Server_Client_Key_Passcode
-														.getBytes(),
-												("Task with Id:"
-														+ requestArray[1] + " can not be found in task manager!")
-														.getBytes())));
+						System.out.println("Task is null at server");
+
+						writeError("Task with Id:" + clientTask
+								+ " can not be found in task manager!");
+
+						System.out.println("Error message sent by server");
 						
 						continue;
 					}
@@ -223,56 +187,75 @@ public class TaskManagerServer {
 						if (!matchRolemappings(requestedtask.role, role)) {
 
 							System.out.println("Role is not valid");
-							nonce = new Random().nextInt();
-							String numberAsString = nonce + "";
-							byte[] encrypt = DESEncryptionHelper
-									.encryptMessage(Server_Client_Key_Passcode
-											.getBytes(), numberAsString
-											.getBytes());
-							String encrypedNumber = Utilities
-									.getBase64EncodedString(encrypt);
-							writeToClient("no;"
-									+ encrypedNumber
-									+ Utilities
-											.bytes2String(DESEncryptionHelper.encryptMessage(
-													Server_Client_Key_Passcode
-															.getBytes(),
-													("The client is not authorized to execute task with Id:"
-															+ requestArray[1] + " due to role mismatch!")
-															.getBytes())));
 
+							writeError("The client is not authorized to execute task with Id:"
+									+ clientTask + " due to role mismatch!");
+
+							System.out.println("Error message sent by server");
 							
 							continue;
 						}
 					}
-					
+
 					// Finally if everything goes well update the task.
 					requestedtask.status = "executed";
 
 					System.out.println("Task executed successfully");
+
+					// Generate next nonce
 					nonce = new Random().nextInt();
 					String numberAsString = nonce + "";
-					byte[] encrypt = DESEncryptionHelper
-							.encryptMessage(Server_Client_Key_Passcode
-									.getBytes(), numberAsString
-									.getBytes());
+					byte[] encrypt = DESEncryptionHelper.encryptMessage(
+							Server_Client_Key_Passcode.getBytes(),
+							numberAsString.getBytes());
 					String encrypedNumber = Utilities
 							.getBase64EncodedString(encrypt);
-					writeToClient("yes;"
-							+ encrypedNumber
-							+ Utilities
-									.bytes2String(DESEncryptionHelper.encryptMessage(
-											Server_Client_Key_Passcode
-													.getBytes(),
-											("Task successfully executed").getBytes())));
-				}
 
+					// Confirmation message
+					String confirmation = "Task successfully executed";
+					byte[] confirmationInBytes = DESEncryptionHelper
+							.encryptMessage(
+									Server_Client_Key_Passcode.getBytes(),
+									confirmation.getBytes());
+					String encryptedConfirmation = Utilities
+							.getBase64EncodedString(confirmationInBytes);
+
+					writeToClient("yes;" + encrypedNumber + ";"
+							+ encryptedConfirmation);
+
+					System.out.println("Execution confirmation sent by server");
+
+					continue;
+				}
 				continue;
 			}
-		}
-		 catch (Exception ex) {
-
+		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
+		}
+
+	}
+
+	private static void writeError(String errorMessage) {
+
+		try {
+			// New nonce
+			nonce = new Random().nextInt();
+			String numberAsString = nonce + "";
+			byte[] encrypt = DESEncryptionHelper.encryptMessage(
+					Server_Client_Key_Passcode.getBytes(),
+					numberAsString.getBytes());
+			String encrypedNumber = Utilities.getBase64EncodedString(encrypt);
+
+			// Error message
+			byte[] errorMessageInBytes = DESEncryptionHelper.encryptMessage(
+					Server_Client_Key_Passcode.getBytes(),
+					errorMessage.getBytes());
+			String encryptedErrorMessage = Utilities
+					.getBase64EncodedString(errorMessageInBytes);
+
+			writeToClient("no;" + encrypedNumber + ";" + encryptedErrorMessage);
+		} catch (Exception e) {
+
 		}
 
 	}

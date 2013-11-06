@@ -14,7 +14,7 @@
                 to approve or
                 ask them to re-submit the assignment.
             </description>
-            <attendants>TA-01,Rao</attendants>
+            <attendants>TA-01,Rao,student-01</attendants>
             <role>ta</role>
         </task>
         <task id="reject-01" name="ask to resubmit the assignment" date="17-12-2013" status="not-executed">
