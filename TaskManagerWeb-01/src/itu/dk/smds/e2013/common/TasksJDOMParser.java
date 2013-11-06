@@ -28,12 +28,8 @@ public class TasksJDOMParser {
 
 
         SAXBuilder builder = new SAXBuilder();
-
-        //String query = "//task[contains(attendant/@ids,'" + userId + "')]";
-
         Document doc = null;
         try {
-
             doc = builder.build(stream);
         } catch (IOException ex) {
             Logger.getLogger(TasksJDOMParser.class.getName()).log(Level.SEVERE, null, ex);
