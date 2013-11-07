@@ -13,13 +13,35 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
-<title>Insert title here</title>
+<title>TaskManager</title>
 
 <style type="text/css">
 
 body{
-	background-color: #6fc378;
+	background-color: #ccc;
 	color: #FFFFFF;
+}
+
+description:before{
+	content: "Task description: "
+}
+
+task{
+	color: #FFFFFF;
+	display: block;
+	margin-bottom: 10pt;
+}
+
+task:before{
+	content: "Id: " attr(id) ". Date: " attr(date) ".";
+}
+
+attendants:before{
+	content: "Attendants: ";
+}
+
+attendants:after{
+	content: ".";
 }
 
 </style>
@@ -27,21 +49,21 @@ body{
 <body>
 
 	<form method="POST">
-		<input type="text" name="query" placeholder="search"><br/>
+		<input type="text" name="query" placeholder="Search"><br/>
 		<input type="radio" name="searchBy" value="id" checked> ID<br/>
 		<input type="radio" name="searchBy" value="attendants"> Owner<br/>
 		<input type="radio" name="searchBy" value="date"> Date<br/>
 		<input type="submit" value="Search!"> <br/>
 	</form>
-
+	<h1>Search result:</h1>
+	
+	<%@ page import="org.jdom2.output.Format" %>
 	<%
 
             try {
 
 				String q = request.getParameter("query");
 				String search = request.getParameter("searchBy");
-				System.out.println(request.getParameter("searchBy"));
-            	System.out.println(request.getParameter("query"));
             	
                 InputStream xmlStream = getServletContext().getResourceAsStream("/WEB-INF/task-manager-xml.xml");
 
@@ -52,18 +74,14 @@ body{
                 }
                 
                 if(search.equals("attendants")){
-                	System.out.println("hello");
-                	//query = "//task/attendants[contains(text(),'" + q + "')]/description";
-                	query = "//task[attendants= '" + q +"']/description";
+                	query = "//task[attendants= '" + q +"']";
                 } else {
                  	query = "//task[@" + search + "='" + q + "']";
                 }
-                
                
 
                 Document tasksDoc = TasksJDOMParser.GetTasksByQuery(xmlStream, query);
-
-
+				
                 new XMLOutputter().output(tasksDoc, out);
 
 
@@ -71,9 +89,8 @@ body{
             } catch (JDOMException ex) {
                 Logger.getLogger(GetAllTasksServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
-
-
-        %>
+	
+    %>
 	
 </body>
 </html>
