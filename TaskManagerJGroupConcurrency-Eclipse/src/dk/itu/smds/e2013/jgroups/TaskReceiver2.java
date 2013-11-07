@@ -82,7 +82,7 @@ public class TaskReceiver2 extends ReceiverAdapter {
 
 		switch (lock) {
 		case "commit":
-			System.out.println("Received commit from " + messageSourceId);
+			System.out.println("Received commit from\t\t" + messageSourceId);
 			if (command.equals("execute")) {
 				SetTaskAsExecuted(taskId);
 			} else {
@@ -96,7 +96,7 @@ public class TaskReceiver2 extends ReceiverAdapter {
 			System.out.println("Got a request from\t\t" + messageSourceId
 					+ " to " + command + " " + taskId);
 
-			if (TaskManagerServer.hashTable.contains(taskId)) {
+			if (TaskManagerServer.hashTable.containsKey(taskId)) {
 
 				envelope.initiator = messageSourceId;
 				envelope.lock = "denyLock";
@@ -112,7 +112,7 @@ public class TaskReceiver2 extends ReceiverAdapter {
 				envelope.command = command;
 				envelope.taskId = taskId;
 
-				System.out.println("Sent GrantLock back");
+				System.out.println("Sent GrantLock back to\t\t" + messageSourceId);
 				WriteEnvelopeToChannel(envelope, channelTasks);
 			}
 
@@ -120,13 +120,15 @@ public class TaskReceiver2 extends ReceiverAdapter {
 
 		case "grantLock":
 
-			System.out.println("GrantLock recieved from\t\t" + messageSourceId
-					+ " to " + command + " " + taskId);
-			try {
+			if(TaskManagerServer.hashTable.containsKey(taskId)) {
+
+				System.out.println("Req. GrantLock recieved from\t" + messageSourceId
+						+ " to " + command + " " + taskId);
+				
 				int number = TaskManagerServer.hashTable.get(taskId) - 1;
 
-				TaskManagerServer.hashTable.put(taskId, number);
-
+				TaskManagerServer.hashTable.put(taskId, number);	
+				
 				// If we got all grants, set the task to executed and commit
 				if (number < 1) {
 
@@ -147,10 +149,7 @@ public class TaskReceiver2 extends ReceiverAdapter {
 					System.out.println("Send commit");
 					WriteEnvelopeToChannel(envelope, channelTasks);
 				}
-			} catch (NullPointerException e) {
-				System.out.println("Task was denied");
-			}
-
+			} 
 			break;
 
 		case "denyLock":

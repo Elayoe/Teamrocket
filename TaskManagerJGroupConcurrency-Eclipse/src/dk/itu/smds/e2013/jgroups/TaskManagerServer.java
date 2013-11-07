@@ -10,6 +10,7 @@ import dk.itu.smds.e2013.serialization.common.Envelope;
 import dk.itu.smds.e2013.serialization.common.Task;
 import dk.itu.smds.e2013.serialization.common.TaskSerializer;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Hashtable;
@@ -47,8 +48,12 @@ public class TaskManagerServer {
 
         try {
         	
-            String taskXmlPath = "C:\\Users\\test.Alex-Laptop\\Documents\\GitHub\\TeamRocket\\TaskManagerJGroupConcurrency-Eclipse\\src\\resources\\task-manager" + in.readLine();
-
+        	// enter 	  .xml for (1)
+        	// 			-1.xml for (2)
+        	//			-2.xml for (3)
+            String path =  new File(".").getAbsolutePath();		
+    		String taskXmlPath = path.substring(0, path.length()-2) + "\\src\\resources\\task-manager" + in.readLine();
+            
             // First load the tasks from the task manager Xml.
             provider = new TaskProvider(taskXmlPath);
 
@@ -117,12 +122,7 @@ public class TaskManagerServer {
                         envelope.initiator = hostProcessAddresss;
                         envelope.lock = "requestLock";
                         envelope.command = "execute";
-                        envelope.taskId = taskId;
-
-                        
-                        // Here we make the thread to sleep for random amount of time < 1 sec,
-                        // so as to simulate some latency in network.
-                        Thread.sleep(generateRandomDelay());
+                        envelope.taskId = taskId;      
                         
                         System.out.println("Host: Execute task\t\t" + taskId);
                         
@@ -138,7 +138,7 @@ public class TaskManagerServer {
                         taskId = in.readLine();
                         
                         checkTask(taskId);
-                        
+                                               
                         setHashTable(taskId);
 
                         // send envelope to the channel for informing the changes to the other
@@ -147,10 +147,6 @@ public class TaskManagerServer {
                         envelope.command = command;
                         envelope.taskId = taskId;
 
-                        // Here we make the thread to sleep for random amount of time < 1 sec,
-                        // so as to simulate some latency in network.
-                        Thread.sleep(generateRandomDelay());
-          
                         System.out.println("Host: Request task " + taskId);
                         
                         WriteEnvelopeToChannel(envelope, channelTasks);
@@ -193,6 +189,10 @@ public class TaskManagerServer {
 
             Message msg = new Message(null, null, envelopeXml);
 
+            // Here we make the thread to sleep for random amount of time < 1 sec,
+            // so as to simulate some latency in network.
+            Thread.sleep(generateRandomDelay());
+            
             channel.send(msg);
 
         } catch (JAXBException ex) {
@@ -205,7 +205,7 @@ public class TaskManagerServer {
 
         Random randomGenerator = new Random();
 
-        return randomGenerator.nextInt(50000);
+        return 40000;//randomGenerator.nextInt(50000);
 
     }
 
