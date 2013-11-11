@@ -54,10 +54,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 		this.required = required;
 		this.description = description;
 		this.attendants = attendants;
-	}
-
-		
-           
-        
+    	}
         
     }

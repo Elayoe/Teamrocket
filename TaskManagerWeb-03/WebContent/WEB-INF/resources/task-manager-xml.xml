@@ -11,4 +11,4 @@
 				Approve mandatory assignment 01 and inform students.
 			</description><attendants>TA-01, Rao</attendants></task><task id="qualify-for-exam" name="qualify for written exam" date="21-12-2013" status="not-executed"><description>
 				Qualify students to take up written exam.
-			</description><attendants>Thomas</attendants></task></tasks></cal>
+			</description><attendants>Thomas</attendants></task><task id="1" name="1" date="1" status="1" required="1"><description>1</description><attendants>1</attendants></task></tasks></cal>

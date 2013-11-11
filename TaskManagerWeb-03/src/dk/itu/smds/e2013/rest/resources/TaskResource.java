@@ -3,6 +3,7 @@ package dk.itu.smds.e2013.rest.resources;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
@@ -46,6 +47,7 @@ public class TaskResource {
       throw new RuntimeException("Get: Task with " + id +  " not found");
     return task;
   }
+  
   
   @PUT
   @Consumes(MediaType.APPLICATION_XML)

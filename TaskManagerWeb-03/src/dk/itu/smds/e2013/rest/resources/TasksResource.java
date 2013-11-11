@@ -78,7 +78,6 @@ public class TasksResource {
 			task.setDescription(description);
 		}*/
 		TaskManagerDAOEnum.INSTANCE.addTask(task);
-		System.out.println("hej");
 
 		servletResponse.sendRedirect("../../create_task.html");
 	}
