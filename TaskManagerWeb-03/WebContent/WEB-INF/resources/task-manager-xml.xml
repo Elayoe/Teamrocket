@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cal><tasks><task id="handin-01" name="Submit assignment-01" date="16-12-2013" status="not-executed"><description>
-				Work on mandatory assignment.
-			</description><attendants>student-01, student-02</attendants></task><task id="review-01" name="Review and check assignment" date="17-12-2013" status="not-executed"><description>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cal><tasks><task id="review-01" name="Review and check assignment" date="17-12-2013" status="not-executed"><description>
 				Check the assignment send by students and decide whether
 				to approve or
 				ask them to re-submit the assignment.
@@ -11,4 +9,4 @@
 				Approve mandatory assignment 01 and inform students.
 			</description><attendants>TA-01, Rao</attendants></task><task id="qualify-for-exam" name="qualify for written exam" date="21-12-2013" status="not-executed"><description>
 				Qualify students to take up written exam.
-			</description><attendants>Thomas</attendants></task><task id="1" name="1" date="1" status="1" required="1"><description>1</description><attendants>1</attendants></task></tasks></cal>
+			</description><attendants>Thomas</attendants></task><task id="1" name="1" date="1" status="1" required="1"><description>1</description><attendants>1</attendants></task><task id="3" name="3" date="3" status="3" required="3"><description>3</description><attendants>3</attendants></task><task id="prereport-01" name="Exam Pre Report" date="15-11-2013" status="Not executed" required="True"><description>Some description...</description><attendants>Team Rocket</attendants></task><task id="6" name="6" date="6" status="6" required="6"><description>6</description><attendants>66</attendants></task><task id="" name="" date="" status="" required=""><description></description><attendants></attendants></task><task id="98" name="89" date="89" status="89" required="89"><description>98</description><attendants>8989</attendants></task></tasks></cal>

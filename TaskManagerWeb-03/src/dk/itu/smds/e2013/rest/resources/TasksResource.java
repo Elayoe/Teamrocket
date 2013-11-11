@@ -79,7 +79,7 @@ public class TasksResource {
 		}*/
 		TaskManagerDAOEnum.INSTANCE.addTask(task);
 
-		servletResponse.sendRedirect("../../create_task.html");
+		servletResponse.sendRedirect("../taskmgr/tasks/");
 	}
 
 

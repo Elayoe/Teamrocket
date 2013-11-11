@@ -71,6 +71,7 @@ public class TaskLoaderServlet extends HttpServlet {
 					.createUnmarshaller().unmarshal(stream);
 
 			TaskManagerDAOEnum.INSTANCE.setTaskManager(taskManager);
+			System.out.println(taskManager);
 
 		} catch (JAXBException e) {
 			// TODO Auto-generated catch block
